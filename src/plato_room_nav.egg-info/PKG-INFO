@@ -1,0 +1,6 @@
+Metadata-Version: 2.4
+Name: plato-room-nav
+Version: 0.1.0
+Summary: Room navigation — breadcrumb trails, push/back/forward history
+License: MIT
+Requires-Python: >=3.8
