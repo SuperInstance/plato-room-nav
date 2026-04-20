@@ -103,8 +103,8 @@ impl RoomNav {
     /// Add a room.
     pub fn add_room(&mut self, room: Room) {
         let id = room.id.clone();
+        self.connections.entry(id.clone()).or_default();
         self.rooms.insert(id, room);
-        self.connections.entry(room.id.clone()).or_default();
     }
 
     /// Connect two rooms.
@@ -234,8 +234,9 @@ impl RoomNav {
     }
 
     fn dijkstra(&self, from: &str, to: &str) -> (Option<Route>, usize) {
-        #[derive(Eq, PartialEq)]
+        #[derive(PartialEq)]
         struct MinW(f64, String);
+        impl Eq for MinW {}
         impl Ord for MinW {
             fn cmp(&self, other: &Self) -> Ordering {
                 other.0.partial_cmp(&self.0).unwrap_or(Ordering::Equal)
@@ -260,7 +261,7 @@ impl RoomNav {
                 let mut path = vec![u.clone()];
                 let mut directions = Vec::new();
                 let mut current = u.clone();
-                let mut total_weight = d;
+                let total_weight = d;
                 while let Some(p) = prev.get(&current) {
                     directions.push(format!("{} → {}", p, current));
                     path.push(p.clone());
@@ -268,7 +269,8 @@ impl RoomNav {
                 }
                 path.reverse();
                 directions.reverse();
-                return (Some(Route { path, total_weight, hops: path.len() - 1, directions }),
+                let hops = path.len() - 1;
+                return (Some(Route { path, total_weight, hops, directions }),
                         visited_count);
             }
             for conn in self.connections.get(&u).unwrap_or(&vec![]) {
